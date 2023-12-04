@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html >
+<head>
+<meta charset="ISO-8859-1">
+<title>Consulta de Solicitudes</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+	<link rel="stylesheet" th:href="@{/resources/datepicker/bootstrap-datepicker.css}">
+	<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.css}">
+	<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.min.css}"> 
+	
+	
+	<!-- agregado de gogle -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+	 
+	<link  rel="stylesheet" type="text/css" th:href="@{/resources/css/all.min.css}">
+	<link rel="stylesheet" th:href="@{/resources/css/sb-admin-2.min.css}">
+</head>
+<body>
+
+
+<div id="wrapper">  
+   		<ul th:replace="~{index :: ul}"></ul>
+   		<!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+ 
+                <nav th:replace="~{index :: nav}"></nav>
+<div class="container">
+    <h1 class="center">:: SOLICITUDES DE PRESTAMOS ::</h1>
+    <div class="mt-2">
+        <!-- Formulario de filtrado  th:action="@{/h2/fechass}" method="post"  -->
+        <form id="loanFilterForm"  class="col-md-10">
+		    <div class="form-group col-md-6">
+		        <label for="prestamista">Prestatarios:</label>
+		        <select class="form-control" id="Idprestamista" name="prestamista" style="width: 100%;">
+		            <option value=" ">[Seleccione Prestatario]</option>
+		            <option th:each="fila : ${listaUserPretatarios}" th:utext="${fila.username}" th:value="${fila.codigoUsuario}"></option>
+		        </select>
+		        <div id="errorCodPreta" style="color: red;"></div>
+		    </div>
+		    <div class="row">
+		        <div class="form-group col-md-4">
+		            <label for="fechaInicioS">Fecha de inicio:</label>
+		            <input type="date" class="form-control" id="fechaInicioS" name="fechaInicial" />
+		        	<div id="errorFechaInicio" style="color: red;"></div>
+		        </div>
+		        <div class="form-group col-md-4">
+		            <label for="fechaFinS">Fecha de fin:</label>
+		            <input type="date" class="form-control" id="fechaFinS" name="fechaFinal" />
+		        	<div id="errorFechaFin" style="color: red;"></div>
+		        </div>
+		    </div>
+		    <br>
+		    <button type="button" class="btn btn-primary" id="btn-filtrar" >Filtrar</button>
+		</form>
+
+
+
+        <!-- Tabla de resultados -->
+        <table class="table table-striped table-bordered mt-5" id="tableMedicamentos">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Codigo</th>
+                    <th>Prestatario</th>
+                    <th>Monto</th>
+                    <th>Fecha de Inicio</th>
+                    <th>Fecha de Fin</th>
+                    <th>Interes</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row:${listSolicitud}">
+                     <td th:text="${row.codigosoli}"></td>
+                    <td th:text="${row.numero}"></td>
+                    <td th:text="${row.Usuarioprestatariosoli.username}"></td>
+                    <td th:text="${row.solimonto}"></td>
+                    <td th:text="${row.fechainiciopresta}"></td>
+                    <td th:text="${row.fecha_fin_prestamo}"></td>
+                    <td th:text="${row.interes}"></td>
+                  	<td>
+					    <button id="btnn" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+					        <i class="far fa-edit"></i> Ver
+					    </button>
+					</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Solicitud</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      
+      <div class="modal-body">
+       
+       			<label>Codigo Solicitud: <span id="idSoliciud">Valor Inicial</span></label>
+     			<br>      			
+		     	<label>Prestatario: <span id="prestatario">Valor Inicial</span></label>
+		     	<br>
+		     	<label>Prestamista: <span id="prestamista">Valor Inicial</span></label>
+		     	<br>
+		     	<label>Monto : <span id="monto">Valor Inicial</span></label> 
+		     	<br>
+		     	<label>Interes : <span id="interes">Valor Inicial</span></label> 
+		    	<br>
+		     	<label>Fecha de Inicio : <span id="inicio">Valor Inicial</span></label> 
+		     	<br>
+		     	<label>Fecha final : <span id="final">Valor Inicial</span></label> 
+		     	<br>
+		     	<label>cod : <span id="cod">Valor Inicial</span></label>   
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="cancelar" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button"  id="aprobar"  class="btn btn-primary" disabled>Aprobar</button>
+        <button type="button"  id="desaprobar"  class="btn btn-primary" disabled>Desaprobar</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+	
+	</div>
+
+<div th:replace="index :: modal"></div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+
+<div th:replace="index :: script"></div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+
+<!--  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+-->
+
+
+<script>
+    function mostrarDatos() {
+        const prestamista = document.getElementById('prestamista').value;
+        const fechaInicio = document.getElementById('fechaInicioS').value;
+        const fechaFin = document.getElementById('fechaFinS').value;
+
+        const mensaje = 'Prestatario: ' + prestamista + '\nFecha de inicio: ' + fechaInicio + '\nFecha de fin: ' + fechaFin;
+        alert(mensaje);
+    }
+
+</script>
+<script>
+$(document).ready(function () {
+    $("#btn-filtrar").click(function () {
+        var codPreta = $("#Idprestamista").val();
+        var fechaInicio = $("#fechaInicioS").val();
+        var fechaFin = $("#fechaFinS").val();
+
+        if (!codPreta.trim()) {
+            $("#errorCodPreta").text("Por favor eliga un prestatario");
+        } else {
+            $("#errorCodPreta").text("");
+        }
+
+        if (!fechaInicio) {
+            $("#errorFechaInicio").text("Por favor ingrese una fecha de inicio");
+        } else {
+            $("#errorFechaInicio").text("");
+        }
+
+        if (!fechaFin) {
+            $("#errorFechaFin").text("Por favor ingrese una fecha de fin");
+        } else {
+            $("#errorFechaFin").text("");
+        }
+
+        // Detener la ejecución si hay errores
+        if (!codPreta.trim() || !fechaInicio || !fechaFin) {
+            return;
+        }
+
+        // Resto del código para la solicitud Ajax
+        $.get("/h2/listaFiltradaJSON", {
+            codPreta: codPreta,
+            fechaInicio: fechaInicio,
+            fechaFin: fechaFin
+        }, function (response) {
+            $("#tableMedicamentos tbody").empty();
+            console.log('Datos Enviados: ' + codPreta + ' ' + fechaInicio + ' ' + fechaFin);
+            $.each(response, function (index, item) {
+                $("#tableMedicamentos tbody").append(`
+                		<tr>
+                        <td>${item.codigosoli}</td>
+                        <td>${item.numero}</td>
+                        <td>${item.usuarioprestatariosoli.username}</td>
+                        <td>${item.solimonto}</td>
+                        <td>${item.fechainiciopresta}</td>
+                        <td>${item.fecha_fin_prestamo}</td>
+                        <td>${item.interes}</td>
+                        <td>
+    				    <button id="btnn" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+    				        <i class="far fa-edit"></i> Ver
+    				    </button>
+    				</td>
+                    </tr>
+                   `);
+            });
+        });
+    });
+});
+
+
+/*$(document).ready(function(){
+$("#btn-filtrar").click(function() {
+	var codPreta = $("#Idprestamista").val();
+    var fechaInicio = $("#fechaInicioS").val();
+    var fechaFin = $("#fechaFinS").val();
+  
+    
+    $.get("/h2/listaFiltradaJSON", {
+    	codPreta: codPreta,
+    	fechaInicio: fechaInicio,
+    	fechaFin: fechaFin
+    },function(response) {
+    	/*$("#tableMedicamentos").DataTable().clear().destroy();*/
+    	/*$("#tableMedicamentos tbody").empty();
+        console.log('Datos Enviados: '+codPreta+ ' ' +fechaInicio+ ' ' +fechaFin);
+    	$.each(response, function (index, item) {
+            $("#tableMedicamentos tbody").append(`
+                <tr>
+                    <td>${item.codigosoli}</td>
+                    <td>${item.numero}</td>
+                    <td>${item.usuarioprestatariosoli.username}</td>
+                    <td>${item.solimonto}</td>
+                    <td>${item.fechainiciopresta}</td>
+                    <td>${item.fecha_fin_prestamo}</td>
+                    <td>${item.interes}</td>
+                    <td>
+				    <button id="btnn" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+				        <i class="far fa-edit"></i> Ver
+				    </button>
+				</td>
+                </tr>
+            `);
+        });
+        $("#tableMedicamentos").DataTable({
+            "searching": false,
+            "lengthChange": false
+	        });
+	    });
+	});
+});*/
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+<script>
+
+$(document).on("click", "#btnn", function () {
+    cod = $(this).parents("tr").find("td")[0].innerHTML;
+    console.log(cod)
+    $.get("http://localhost:8091/h2/soli/" + cod, function (response) {
+        console.log(response);
+        $("#idSoliciud").text(response.codigosoli);
+        $("#prestatario").text(response.usuarioprestatariosoli.username);
+        $("#prestamista").text(response.usuarioregistrosoli.username);
+        $("#monto").text(response.solimonto);
+        $("#interes").text(response.interes);
+        $("#inicio").text(response.fechainiciopresta);
+        $("#final").text(response.fecha_fin_prestamo);
+        $("#cod").text(response.usuarioregistrosoli.codigoUsuario);
+
+        if (response.estadosoli == 2) {
+            // Estado 2: Aprobado
+            $("#aprobar").prop("disabled", true);
+            $("#desaprobar").prop("disabled", false);
+        } else if (response.estadosoli == 3) {
+            // Estado 3: Desaprobado
+            $("#aprobar").prop("disabled", false);
+            $("#desaprobar").prop("disabled", true);
+        } else {
+            // Otros estados
+            $("#aprobar").prop("disabled", false);
+            $("#desaprobar").prop("disabled", false);
+        }
+    });
+});
+
+
+$(document).on("click","#aprobar",function(){
+	
+	var valor = $("#idSoliciud").text();
+	console.log(valor)
+	$.get("http://localhost:8091/h2/actualizar/estado/"+valor+"/2",function(){
+		
+		 $("#staticBackdrop").modal('hide');
+		 
+		alert("aprobado")	
+	})
+	
+})
+
+$(document).on("click","#desaprobar",function(){
+	
+	var valor = $("#idSoliciud").text();
+	console.log(valor)
+	
+	$.get("http://localhost:8091/h2/actualizar/estado/"+valor+"/3",function(){
+		
+		 $("#staticBackdrop").modal('hide');
+		 alert("desaprobado")	
+	})
+	
+})
+
+</script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="ISO-8859-1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <!-- LINKS PARA EL DASHBOARD -->
+  <link  rel="stylesheet" type="text/css" th:href="@{/resources/css/all.min.css}">
+<link rel="stylesheet" th:href="@{/resources/css/sb-admin-2.min.css}">
+
+  <title>Consulta de Cuotas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5; /* Azul claro similar al de Facebook */
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #1877f2; /* Azul oscuro similar al de Facebook */
+    }
+
+    .form-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #555;
+    }
+
+    .combo {
+      width: 30%;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .readonly-field {
+      width: 30%;
+      padding: 10px;
+      box-sizing: border-box;
+      background-color: #f0f2f5; /* Azul claro similar al de Facebook */
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      color: #1877f2; /* Azul oscuro similar al de Facebook */
+    }
+
+    .table-container {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      text-align: center; /* Alinea todo el contenido al centro */
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: center; /* Alinea el texto al centro */
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f0f2f5; /* Azul claro similar al de Facebook */
+      color: #1877f2; /* Azul oscuro similar al de Facebook */
+    }
+
+    .divider-row {
+      background-color: #f0f2f5; /* Azul claro similar al de Facebook */
+    }
+    .wide-input {
+    width: 180%; /* O ajusta el porcentaje que desees */
+	}
+    
+    
+  </style>
+</head>
+<body>
+	<div id="wrapper">  
+   		<ul th:replace="~{index :: ul}"></ul>
+ 
+  		<!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+ 
+                <nav th:replace="~{index :: nav}"></nav>
+				<div class="container">
+
+    <div class="title">Consulta de Cuotas</div>
+    	
+		    <div class="row">
+		        <div class="col-md-4">
+		        	<label>Jefe Prestamista: </label>
+		            <select class="form-control" id="idJefePrestamista" name="jefePrestamista">
+		                <option value=" ">[Seleccione]</option>
+		                <option th:each="jefe : ${listaUseJefe}"
+		                        th:value="${jefe.codigoUsuario}"
+		                        th:utext="${jefe.username}">
+		                </option>
+		            </select>
+		        </div>
+		        <div class="col-md-3"></div> <!-- Div vacío que ocupa 4 columnas -->
+			    <div class="col-md-5">
+			        <label>Rentabilidad del grupo: </label>
+			        <div class="wide-input">
+			        	<input class="readonly-field form-control" type="text" placeholder="Rentabilidad" readonly>
+			        </div>
+			        
+			    </div>
+		    </div>
+
+
+    
+    <div class="table-container">
+      <table id="prestamistas-body">
+        <thead>
+          <tr>
+            <th rowspan="2">Prestamista</th>
+            <th colspan="4">Suma de Monto de todos los prestamos</th>
+          </tr>
+          <tr>
+            <td>Prestado</td>
+            <td>Pagado</td>
+            <td>Pendiente</td>
+            <td>Rentabilidad</td>
+          </tr>
+        </thead>
+        <tbody>
+        	<tr id="total-row" style="display: none;">
+		        <td colspan="4">Suma Total:</td>
+		        <td id="total-column-1"></td>
+		        <td id="total-column-2"></td>
+		        <td id="total-column-3"></td>
+		        <td id="total-column-4"></td>
+		    </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
+  
+<div th:replace="index :: modal"></div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+
+<div th:replace="index :: script"></div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+
+<script>
+$(document).ready(function(){
+    // Verifica si el valor seleccionado no es un espacio en blanco al cargar la página
+    var codJefeSelect = $("#idJefePrestamista").val().trim();
+    if (codJefeSelect !== "") {
+        // Ejecuta la función de filtrado al cargar la página si el valor seleccionado es válido
+        filtrarPorCodigoJefe();
+    }
+
+    // Registra el evento de cambio en el select
+    $("#idJefePrestamista").change(function() {
+        // Ejecuta la función de filtrado cuando el valor del select cambie
+        filtrarPorCodigoJefe();
+    });
+
+    // Función para realizar el filtrado por código de jefe
+    function filtrarPorCodigoJefe() {
+        var codJefe = $("#idJefePrestamista").val();
+
+        // Verifica si el valor seleccionado no es un espacio en blanco
+        if (codJefe.trim() !== "") {
+            $.get("/prestamogrupo/listaFiltradaJSON", {
+                codJefe: codJefe
+            }, function(response) {
+                var totals = [0, 0, 0];
+                var rentabilidadTotal = 0;
+                $("#prestamistas-body tbody").empty();
+
+                $.each(response, function (index, item) {
+                    // Redondear los datos a 2 decimales antes de agregarlos a la tabla
+                    var prestado = parseFloat(item[1]).toFixed(2);
+                    var pagado = parseFloat(item[2]).toFixed(2);
+                    var pendiente = parseFloat(item[3]).toFixed(2);
+                    var rentabilidad = ((parseFloat(item[2]) / parseFloat(item[1])) * 100).toFixed(2);
+
+                    // Agregar fila de datos
+                    $("#prestamistas-body tbody").append(`
+                        <tr>
+                            <td>${item[0]}</td>
+                            <td>${prestado}</td>
+                            <td>${pagado}</td>
+                            <td>${pendiente}</td>
+                            <td>${rentabilidad}%</td>
+                        </tr>
+                    `);
+
+                    // Actualizar totales
+                    for (var i = 0; i < 3; i++) {
+                        totals[i] += parseFloat(item[i + 1]);
+                    }
+                });
+
+                // Calcular la rentabilidad total
+                rentabilidadTotal = (totals[0] !== 0) ? (totals[1] / totals[0]) * 100 : 0;
+
+                // Agregar fila de "Suma Total" después del bucle
+                $("#prestamistas-body tbody").append(`
+                    <tr id="total-row" style="display: none;">
+                        <td colspan="1">Suma Total:</td>
+                        <td id="total-column-1">${totals[0].toFixed(2)}</td>
+                        <td id="total-column-2">${totals[1].toFixed(2)}</td>
+                        <td id="total-column-3">${totals[2].toFixed(2)}</td>
+                        <td id="total-column-4">${rentabilidadTotal.toFixed(2)}%</td>
+                    </tr>
+                `);
+
+                // Actualizar valores de "Suma Total"
+                if (response.length > 0) {
+                    for (var i = 0; i < 3; i++) {
+                        $("#total-column-" + (i + 1)).text(totals[i].toFixed(2));
+                    }
+                    $("#total-column-4").text(rentabilidadTotal.toFixed(2) + "%");
+                    // Mostrar el valor de rentabilidadTotal en el input
+                    $(".readonly-field").val(rentabilidadTotal.toFixed(2) + "%");
+
+                    // Mostrar el valor de rentabilidadTotal en el input de arriba
+                    $("#idJefePrestamista").next().find(".readonly-field").val(rentabilidadTotal.toFixed(2) + "%");
+    
+                } else {
+                    // Si la tabla está vacía, establecer los valores a 0%
+                    for (var i = 1; i <= 4; i++) {
+                        $("#total-column-" + i).text("0.00");
+                    }
+                    $(".readonly-field").val("0.00%");
+                    $("#idJefePrestamista").next().find(".readonly-field").val("0.00%");
+
+                    // Mostrar la fila de "Suma Total"
+                    $("#total-row").show()
+                }
+
+                $("#total-row").show();
+            });
+        }
+    }
+});
+</script>
+
+
+
+</body>
+</html>

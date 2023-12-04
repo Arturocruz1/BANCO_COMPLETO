@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+	
+		<div th:insert="plantilla/UITemplate :: cabecera"></div>
+	<div class="container">
+
+		<h3 class="text-center mt-4">LISTA DE USUARIO</h3>
+
+		<button type="button" class="btn btn-primary mt-5" data-toggle="modal" data-target="#modalAlumno"
+			id="btn-nuevo">
+			<i class="far fa-file"></i> USUARIO
+		</button>
+		<div class=" mt-2">
+
+			<!--CONSULTA POR APELLIDO-->
+			<form id="formBuscarApellido" method="post">
+				<input type="text" id="consulta-apellido" />
+				<input type="submit" id="btn-consulta-apellido" value="Consulta"/>
+				<br>
+			</form>
+
+
+
+
+			<table class="table table-striped table-bordered mt-5" id="tableAlumnos">
+				<thead>
+					<tr>
+						<th>Código</th>
+						<th>Nombre</th>
+						<th>Apellido</th>
+						<th>Fecha</th>
+						<th>Correo</th>
+						<th>País</th>
+						<th>Ciudad</th>
+						<th>Estado</th>
+						<th></th>
+						<th></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="row:${listaAlumnos}">
+						<td th:text="${row.codigo}"></td>
+						<td th:text="${row.nomAlumno}"></td>
+						<td th:text="${row.apeAlumno}"></td>
+						<td th:text="${row.fecNacimiento}"></td>
+						<td th:text="${row.correoAlu}"></td>
+						<td th:text="${row.pais.namePais}"></td>
+						<td th:text="${row.ciudad.nombre}"></td>
+						<td><a class="btn btn-info btn-editar" data-toggle="modal" data-target="#modalAlumno"><i
+									class="far fa-edit"></i></a></td>
+						<td><a class="btn btn-danger btn-eliminar"><i class="far fa-trash-alt"></i></a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+
+		<!-- begin #modal-dialog : MODAL ALUMNO-->
+		<div class="modal fade" id="modalAlumno" data-backdrop="static" data-keyboard="false" tabindex="-1"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-login modal-lg">
+				<div class="modal-content">
+					<div class="modal-header bg-blue-darker">
+						<h4 class="modal-title text-white">ALUMNO</h4>
+					</div>
+					<div class="modal-body">
+						<form method="POST" id="idRegistra" action="/alumno/registrar">
+							<input type="hidden" id="idCodigo" name="codigo" value="0">
+							<div class="container">
+								<div class="row">
+									<div class="form-group has-feedback col-md-12">
+										<label for="exampleInputEmail1"><b>Nombre</b></label><br>
+										<i class="fas fa-file-signature form-control-feedback2"></i>
+										<input type="text" class="form-control" id="idNombre"
+											placeholder="Ingresar nombre" name="nomAlumno">
+									</div>
+									<div class="form-group has-feedback col-md-12">
+										<label for="exampleInputEmail1"><b>Apellido</b></label><br>
+										<i class="fas fa-file-signature form-control-feedback2"></i>
+										<input type="text" class="form-control" id="idApellido"
+											placeholder="Ingresar Apellido" name="apeAlumno">
+									</div>
+
+									<div class="form-group has-feedback col-md-4">
+										<label for="exampleInputEmail1" class="text-center"><b>Fecha
+												nacimiento</b></label><br>
+										<i class="fas fa-calendar-week form-control-feedback2"></i>
+										<input type="text" style="background-color:#aed6f1" class="form-control"
+											id="idFecha" name="fecNacimiento" placeholder="YYYY-MM-DD"
+											autocomplete="off">
+
+									</div>
+
+									<div class="form-group has-feedback col-md-12">
+										<label for="exampleInputEmail1"><b>Correo</b></label><br>
+										<i class="fas fa-file-signature form-control-feedback2"></i>
+										<input type="text" class="form-control" id="idCorreo"
+											placeholder="Ingresar cuenta aa@gmail.com" name="correoAlu">
+									</div>
+									<div class="form-group has-feedback col-md-6">
+										<label for="exampleInputEmail1"><b>Estado</b></label><br>
+										<i class="fas fa-file-signature form-control-feedback2"></i>
+										<input type="text" class="form-control" id="idEstado"
+											placeholder="Ingresar estado del alumno" name="estado">
+									</div>
+									<br>
+
+									<div class="form-group has-feedback col-md-6">
+										<label for="exampleInputEmail1"><b>País</b></label><br>
+										<i class="fas fa-prescription-bottle-alt form-control-feedback2"></i>
+										<select class="form-control" id="idPais" name="pais">
+											<option value=" ">[Seleccione País]</option>
+											<option th:each="data:${listaPaises}" th:utext="${data.namePais}"
+												th:value="${data.codPais}" />
+										</select>
+									</div>
+
+									<div class="form-group has-feedback col-md-6">
+										<label for="exampleInputEmail1"><b>Ciudad</b></label><br>
+										<i class="fas fa-prescription-bottle-alt form-control-feedback2"></i>
+										<select class="form-control" id="idCiudad" name="ciudad">
+											<option value=" ">[Seleccione Ciudad]</option>
+										</select>
+									</div>
+
+									
+
+
+								</div>
+							</div>
+							<div class="col-md-12 text-center mt-4">
+								<button type="submit" id="Guardar" class="btn btn-primary"><i class="fas fa-save"></i>
+									Registrar</button>
+								<button type="button" id="btn-cerrar" class="btn btn-danger" data-dismiss="modal"><i
+										class="fas fa-undo-alt"></i> Cancelar</button>
+							</div>
+						</form>
+
+
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- FIN Modal ELIMINAR-->
+		<form action="/alumno/eliminar" method="post" id="form-eliminar">
+			<input type="hidden" name="codigo" id="codigo-eliminar" />
+		</form>
+
+
+
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.js"></script>
+	<script th:src="@{/resources/datepicker/bootstrap-datepicker.js}"></script>
+	<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+	<script src="https://kit.fontawesome.com/08aaa156fb.js" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<script src="https://kit.fontawesome.com/08aaa156fb.js" crossorigin="anonymous"></script>
+	<script th:src="@{/resources/alertifyjs/alertify.js}"></script>
+	<script th:src="@{/resources/alertifyjs/alertify.min.js}"></script>
+
+	<script th:inline="javascript" th:if="${MENSAJE!=null}">
+		//recuperar atributo "MENSAJE"
+		let msg =/*[[${MENSAJE}]]*/
+
+			toastr.success(msg, toastr.options = {
+				"timeOut": "2000",
+				"positionClass ": " toast-top-right ",
+			});
+	</script>
+
+	<script>
+		let codigoCiudad=-1;
+
+		//asignar evento clic a todos los botones de clase "btn-editar"
+		$(document).on("click", ".btn-editar", function () {
+			//obtener el código del medicamento actual(según el botón editar)
+			let codAlumno;
+			codAlumno = $(this).parents("tr").find("td")[0].innerHTML;
+			//función get
+			$.get("/alumno/buscar?codigo=" + codAlumno, function (response) {
+				console.log(response);
+				$("#idCodigo").val(response.codigo);
+				$("#idNombre").val(response.nomAlumno);
+				$("#idApellido").val(response.apeAlumno);
+				$("#idFecha").val(response.fecNacimiento);
+				$("#idCorreo").val(response.correoAlu);
+				$("#idPais").val(response.pais.codPais);
+				$("#idEstado").val(response.estado);
+				
+				
+				codigoCiudad=response.ciudad.codigo;
+				$("#idPais").trigger("change");
+
+			})
+		})
+
+		//BOTON CERRAR
+		//asignar evento clic al botón con ID "btn-cerrar"
+		$(document).on("click", "#btn-cerrar", function () {
+			//resetear formulario
+			$("#idRegistra").trigger("reset");
+			//asignar el valor de "0" a la caja con ID "idCodigo"
+			$("#idCodigo").val(0);
+			//resetear validación
+			$("#idRegistra").data("bootstrapValidator").resetForm(true);
+		})
+
+		//BOTON ELIMINAR
+		//asignar evento clic a todos los botones de clase "btn-eliminar"
+		$(document).on("click", ".btn-eliminar", function () {
+			//obtener el código del medicamento actual(según el botón eliminar)
+			let codigo;
+			codigo = $(this).parents("tr").find("td")[0].innerHTML;
+			//
+			$("#codigo-eliminar").val(codigo);
+			alertify.confirm("SISTEMA", "Seguro de eliminar!",
+				function () {//siiiiiiiiiiiiiiii
+					$("#form-eliminar").submit();
+				},
+				function () {//noooooooooooooooooo 
+					alertify.error('Cancelado!')
+				}).
+				set('labels', {ok: 'Si', cancel: 'No'});
+		})
+
+	</script>
+
+
+
+	<script>
+		$('#tableAlumno').DataTable();
+		$(function () {
+			$('#idFecha').datepicker({
+				'format': 'yyyy-mm-dd',
+				'autoclose': true
+			});
+
+		});
+		$('#usr1').on('changeDate show', function (e) {
+			$('#idRegistra').bootstrapValidator('revalidateField', $('#usr1'));
+		});
+
+
+
+
+	</script>
+
+	<script type="text/javascript">
+		$(document).ready(function () {
+
+			$('#idRegistra').bootstrapValidator({
+				feedbackIcons: {
+					valid: 'glyphicon glyphicon-ok',
+					invalid: 'glyphicon glyphicon-remove',
+					validating: 'glyphicon glyphicon-refresh'
+				},
+				fields: {
+
+					Nombres: {
+						selector: '#idNombre',
+						validators: {
+							notEmpty: {
+								message: 'Ingrese nombre'
+							}
+						}
+					},
+					Apellidos: {
+						selector: '#idApellido',
+						validators: {
+							notEmpty: {
+								message: 'Ingrese apellido'
+							}
+						}
+					},
+					FechaNacimiento: {
+	     	    		selector:'#idFecha',   
+	                    validators: {    
+	                        notEmpty: {    
+	                            message: 'Seleccione fecha '    
+	                        },
+	                        date: {
+	                            format: 'YYYY-MM-DD',
+	                            message: 'El formato es dd/mm/yyyy'
+	                        },
+	                    }    
+	                },
+					Correo: {
+						selector: '#idCorreo',
+						validators: {
+							notEmpty: {
+								message: 'Ingrese correo'
+							}
+						}
+					},
+						Estado: {
+						selector: '#idEstado',
+						validators: {
+							notEmpty: {
+								message: 'Ingrese estado del alumno'
+							}
+						}
+					},
+					Pais: {
+						selector: '#idPais',
+						validators: {
+							notEmpty: {
+								message: 'Seleccione pais'
+							},
+						}
+					},
+					Ciudad: {
+						selector: '#idCiudad',
+						validators: {
+							notEmpty: {
+								message: 'Seleccione ciudad'
+							},
+						}
+					}
+				}
+			})
+		
+		
+
+			//Formulario de consultar por apellido
+			$("#formBuscarApellido").submit(function(e){
+				e.preventDefault();
+		        e.stopPropagation();
+				let apellido;
+					apellido = $("#consulta-apellido").val();
+					//
+					$("#tableAlumnos tbody").empty();
+					//nombreControlador/metodoEmpoy(ponerNOMBRE DE LA RUTA)? VARIABLE QUE HE DEFINIDO
+					$.get("/alumno/consultaApellido?apellidoAlum=" + apellido, function (response) {
+						console.log("BUSCAR POR CÓDIGO", response);
+						//bucle
+						$.each(response, function (index, item) {
+							$("#tableAlumnos tbody").append('<tr>' +
+								'<td>' + item.codigo + '</td>' +
+								'<td>' + item.nomAlumno + '</td>' +
+								'<td>' + item.apeAlumno + '</td>' +
+								'<td>' + item.fecNacimiento + '</td>' +
+								'<td>' + item.correoAlu + '</td>' +
+								'<td>' + item.pais.namePais + '</td>' +
+								'<td>' + item.pais.namePais + '</td>' +
+								'<td>' + item.estado + '</td>' +
+								'<td><a class="btn btn-info btn-editar" data-toggle="modal" data-target="#modalAlumno"><i class="far fa-edit"></i></a></td>' +
+								'<td><a class="btn btn-danger btn-eliminar"><i class="far fa-trash-alt"></i></a></td>' +
+								'</tr>');
+						})
+					})		
+			});
+			
+			//Cargar ciudad por pais
+			$(document).on("change","#idPais",function(){
+				//variable
+				let codigoPais;
+				codigoPais=$(this).val();
+				//limpiar combo de tipo
+				$("#idCiudad").empty().append("<option>[Seleccione Ciudad]</option>");
+				$.get("/alumno/listarCiudadPorPais?codigoPais="+codigoPais,function(response){
+					console.log("respuesta listarCiudadPorPais?codigoPais="+codigoPais, response);
+					//bucle
+					$.each(response,function(index,item){
+						$("#idCiudad").append("<option value='"+item.codigo+"'>"+item.nombre+"</option>");
+					})
+					
+					$("#idCiudad").val(codigoCiudad);					
+				
+				})
+			});
+
+		
+		
+		
+		});    
+	</script>
+
+</body>
+</html>

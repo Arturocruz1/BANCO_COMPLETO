@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link  rel="stylesheet" type="text/css" th:href="@{/resources/css/all.min.css}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+	
+<link rel="stylesheet" th:href="@{/resources/css/sb-admin-2.min.css}">
+    <title>Registro Pagos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            padding: 6px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+          #reporteModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4); /* Fondo borroso */
+            backdrop-filter: blur(5px); /* Desenfoque del fondo */
+            padding-top: 60px;
+        }
+
+        #reporteModalContent {
+           background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%; /* Ajusta el ancho del modal */
+        }
+
+        #reporteModal button {
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #reporteModal button:hover {
+            background-color: #45a049;
+        }
+        
+		/* Hace que la columna sea invisible Julio*/
+        .invisible-column {
+            display: none; 
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div id="wrapper">  <!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+        <ul th:replace="~{index :: ul}"></ul><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+      
+       <!-- Content Wrapper -->
+             <div id="content-wrapper" class="d-flex flex-column"><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+     
+                 <!-- Main Content -->
+                 <div id="content"><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+      
+                     <nav th:replace="~{index :: nav}"></nav><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+      
+         <div class="container">   <!-- ESTE ES TU CONTENIDO DE TU PAGINA CREADA PERTENECIENTE A ESTA PAGINA /*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/ -->
+  <h1>Registro Pagos</h1>
+  				<!-- method="post" th:action="@{/RegisitrarPago/fechass} -->
+        <form>
+            
+		           <!--  <select id="prestatario" name="usuario">
+		                 Opciones del combo se cargarían dinámicamente desde Spring -->
+		                <!--<option value="prestatario1" th:each="row:${listUsuario}" th:utext="${row.paternoUsuario}" th:value="${row.codigoUsuario}"></option>
+		                
+		                <!-- Agrega más opciones según sea necesario -->
+		           <!-- </select>--> 
+
+            <!-- <i class="fas fa-flag form-control-feedback2"></i> -->
+			<div class="col-md-6"> 
+				<label for="prestatario">Prestatario:</label>
+					<select class="form-control" id="idPrestatario" name="prestatarios">
+					<option value=" ">[Seleccione]</option>
+					<option th:each="prestatario : ${listUsuario}"
+						th:value="${prestatario.codigoUsuario}"
+						 th:utext="${prestatario.username}">
+					</option>
+				</select>
+			</div>
+
+            <label for="fechaDesde">Fecha desde:</label>
+            <input type="date" id="fechaDesdeC" name="fechaInicial">
+
+            <label for="fechaHasta">Fecha hasta:</label>
+            <input type="date" id="fechaHastaC" name="fechaFinal">
+
+            <button type="button" class="btn btn-primary" id="btn-Filtrar">Consultar</button>
+        </form>
+
+        <!-- Tabla para mostrar datos style="display: none;" -->
+        <table id="tablaDetalles" >
+            <thead>
+                <tr>
+                	<th class="invisible-column">CODIGO CUOTA</th>
+                    <th>Prestamos</th>
+                    <th>Prestatario</th>
+                    <th>Cuota</th>
+                    <th>Monto</th>
+                    <th>Fecha vencimiento</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+               <tbody>
+						    <!--  <tr th:each="usuario:${listSolicitud}">
+						        <td th:text="${usuario.monto}"></td>
+						        <td th:text="${usuario.Usuarioregistrocuota.username}"></td>
+						        <td th:text="${usuario.numeroCuota}"></td>
+						        <td th:text="${usuario.monto}"></td>
+						        <td th:text="${usuario.fechaPago}"></td>
+						        
+								<td><a class="btn btn-danger btn-eliminar"><i class="far" style="color: white;">Acciones</i></a></td>
+						    </tr>-->
+						    <tr th:each="usuario:${listaCuotas}">
+						        <td th:text="${usuario[0]}" class="invisible-column"></td>
+						        <td th:text="${usuario[1]}"></td>
+						        <td th:text="${usuario[2]}"></td>
+						        <td th:text="${usuario[3]}"></td>
+						        <td th:text="${usuario[4]}"></td>
+						        <td th:text="${usuario[5]}"></td>
+								<td><a class="btn btn-danger btn-Reporte" data-bs-toggle="modal" data-bs-target="#staticBackdrop" ><i class="far" style="color: white;">Acciones</i></a></td>
+						    </tr>
+				</tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal de reporte -->
+    <div id="reporteModal">
+        <div id="reporteModalContent">
+            <h2>Pago de Cuota</h2>
+            <p><strong>Préstamo:</strong> <span id="modalPrestamo"></span></p>
+            <p><strong>Prestatario:</strong> <span id="modalPrestatario"></span></p>
+            <p><strong>Cuota:</strong> <span id="modalCuota"></span></p>
+            <p><strong>Monto:</strong> <span id="modalMonto"></span></p>
+            <p><strong>Fecha de Vencimiento:</strong> <span id="modalFechaVencimiento"></span></p>
+            <label for="modalMontoPagar">Monto a Pagar:</label>
+            <input type="text" id="modalMontoPagar" placeholder="Ingrese el monto a pagar">
+            <button onclick="pagarPrestamo()">Pagar</button>
+            <button onclick="cerrarModal('reporteModal')">Cerrar</button>
+        </div>
+    </div>
+    
+    <!-- Button trigger modal 
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+  Launch static backdrop modal
+</button>
+-->
+    <!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Forma de pago</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      
+      
+  <div class="mb-3">
+      <label for="disabledSelect" class="form-label">Pago</label>
+      <select  class="form-control" id="idFormaDePagoo">
+      <option value=" ">[Seleccione]</option>
+        <option th:each="prestatario:${formaPago}"
+						th:value="${prestatario.idFormaPago}"
+						 th:utext="${prestatario.descripcion}"></option>
+      </select>
+     
+    <label for="exampleInputEmail1" class="form-label">Numero Tarjeta</label>
+    <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    
+    <label for="exampleInputEmail1" class="form-label">cip</label>
+    <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+  
+      
+    </div>
+        
+        
+        
+      </div>
+      <div class="modal-footer">
+        <button   id="pagoparcial" type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Pago Parcial</button>
+        <button id="pagosssCompleto" type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">Pago Completo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Button trigger modal 
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">
+  Launch static backdrop modal02
+</button>
+-->
+<!-- Modal para pago completo -->
+<div class="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Pago </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       
+       
+       
+       <form method="POST" action="/RegisitrarPago/registrarCuota" id="idRegistra">
+				
+				<div class="modal-body">
+					<input type="hidden" id="idCodigoDeCuota" name="codigoCuota" value="0">	
+					<div class="form-group">
+						<label>codpagooo</label>
+						<input type="text" class="form-control" name="codigoFormapago" id="idFormaPaogo">
+					</div>
+									
+					<div class="form-group">
+						<label>Nombre</label>
+						<input type="text" class="form-control" name="nombrePrestario" id="idNombrePrestatario">
+					</div>
+
+					<div class="form-group">
+						<label>Numero de la cuota</label>
+						<input type="text" class="form-control" name="numerocuota" id="idNumeroDeLaCuota">
+					</div>
+					
+					<div class="form-group">
+						<label>Monto Referencial</label>
+						<input type="text" class="form-control" name="monto" id="idMonto">
+					</div>
+					
+					<div class="form-group">
+						<label>Fecha Vencimiento</label>
+						<input type="text" class="form-control" name="fechaVencimiento" id="idFechaVencimiento">
+					</div>
+					
+					<div class="form-group">
+						<label>Monto que Pagaras</label>
+						<input type="text" class="form-control" name="montoPagoUsuario" id="idMontoPagar">
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					
+					<input type="submit" class="btn btn-success" value="Registrar">
+				</div>
+			</form>
+       
+       
+       
+       
+       
+       
+       
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cerrar</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Button trigger modal
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop3">
+  Launch static backdrop modal03
+</button>
+ -->
+<!-- Modal para pago parcial -->
+<div class="modal fade" id="staticBackdrop3" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Pago Parcial</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+        
+       
+        
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Understood</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+    <!--  <script>
+        function mostrarTabla() {
+            // Aquí se debería hacer una llamada a Spring para obtener los datos y llenar la tabla
+            // En este ejemplo, simplemente mostramos la tabla y llenamos algunos datos ficticios
+            document.getElementById("tablaDetalles").style.display = "block";
+
+            // Datos ficticios (reemplaza con la lógica de obtención de datos desde Spring)
+            var datosFicticios = [
+                ["Préstamo 1", "Prestatario 1", "Cuota 1", "$1000", "2023-12-01",""],
+                ["Préstamo 2", "Prestatario 2", "Cuota 2", "$1500", "2023-12-15",""]
+                // Agrega más datos según sea necesario
+            ];
+
+            // Llena la tabla con los datos ficticios
+            var tablaBody = document.getElementById("tablaBody");
+            tablaBody.innerHTML = "";
+
+            datosFicticios.forEach(function(fila) {
+                var nuevaFila = tablaBody.insertRow(tablaBody.rows.length);
+                fila.forEach(function(celda, index) {
+                    var nuevaCelda = nuevaFila.insertCell(nuevaFila.cells.length);
+                    nuevaCelda.innerHTML = celda;
+
+                    // Agrega un botón "Ver" en la última celda de cada fila
+                    if (index === fila.length - 1) {
+                        var verButton = document.createElement("button");
+                        verButton.className = "ver-button";
+                        verButton.innerHTML = "Ver";
+                        verButton.onclick = function() {
+                            mostrarReporte(fila);
+                        };
+                        nuevaCelda.appendChild(verButton);
+                    }
+                });
+            });
+        }
+
+        function mostrarReporte(datos) {
+            // Lógica para mostrar el modal de reporte y llenar los datos
+            document.getElementById("reporteModal").style.display = "block";
+
+            // Puedes ajustar el índice según la estructura de tus datos
+            document.getElementById("modalPrestamo").innerText = datos[0];
+            document.getElementById("modalPrestatario").innerText = datos[1];
+            document.getElementById("modalCuota").innerText = datos[2];
+            document.getElementById("modalMonto").innerText = datos[3];
+            document.getElementById("modalFechaVencimiento").innerText = datos[4];
+            // Puedes seguir llenando más campos según tus datos
+
+            // Aquí puedes agregar más lógica para obtener y mostrar la mora
+            document.getElementById("modalMora").innerText = obtenerMora(datos);
+        }
+
+        function cerrarModal(modalId) {
+            // Lógica para cerrar el modal
+            document.getElementById(modalId).style.display = "none";
+        }
+    </script>-->
+    
+    <div th:replace="index :: modal"></div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+
+	<div th:replace="index :: script"></div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+    
+    <script>
+    
+    $(document).ready(function(){
+    	$("#btn-Filtrar").click(function() {
+    		var codPrestatario = $("#idPrestatario").val();
+    	    var fechaInicio = $("#fechaDesdeC").val();
+    	    var fechaFin = $("#fechaHastaC").val();
+    	  
+    	    
+    	    $.get("/RegisitrarPago/FiltroCoutasPagoJSON", {
+    	    	codPrestatario: codPrestatario,
+    	    	fechaInicio: fechaInicio,
+    	    	fechaFin: fechaFin
+    	    },function(response) {
+    	    	/*$("#tableMedicamentos").DataTable().clear().destroy();*/
+    	    	$("#tablaDetalles tbody").empty();
+    	        console.log('Datos Enviados: '+codPrestatario+ ' ' +fechaInicio+ ' ' +fechaFin);
+    	    	$.each(response, function (index, item) {
+    	            $("#tablaDetalles tbody").append(`
+    	                <tr>
+    	            		<td class="invisible-column">${item[0]}</td>
+                            <td>${item[1]}</td>
+                            <td>${item[2]}</td>
+                            <td>${item[3]}</td>
+                            <td>${item[4]}</td>
+                            <td>${item[5]}</td>
+                            <td><a class="btn btn-danger btn-Reporte" data-bs-toggle="modal" data-bs-target="#staticBackdrop" ><i class="far" style="color: white;">Acciones</i></a></td>
+    	                </tr>
+    	            `);
+    	        });
+
+    		    });
+    		});
+    	});
+    </script>
+    <script>
+    $(document).on("click",".btn-Reporte", function(){
+    	let cod;
+    	//cod cuota
+    	cod = $(this).parents("tr").find("td")[0].innerHTML;
+    	//numero cuota
+    	let numCuota = $(this).parents("tr").find("td")[3].innerHTML;
+    	//monto
+    	let monto= $(this).parents("tr").find("td")[4].innerHTML;
+    	//nombre de usuario
+    	let nombre=$(this).parents("tr").find("td")[2].innerHTML;
+    	//fecha vencimiento
+    	let fecha=$(this).parents("tr").find("td")[5].innerHTML;
+    	
+    	$("#idCodigoDeCuota").val(cod);
+    	$("#idNombrePrestatario").val(nombre);
+    	$("#idNumeroDeLaCuota").val(numCuota);
+    	$("#idMonto").val(monto);
+    	$("#idFechaVencimiento").val(fecha);
+    	
+    	$.get("/RegisitrarPago/buscarPorId/"+cod,function(response){
+    		
+    		let estado=response.estadoCuota;
+    		console.log(estado)
+    		
+    		if (estado === 1) {
+    			
+    			// Deshabilitar el botón por su ID pagoparcial
+    			$("#pagosss").prop("disabled", true);
+    			$("#pagoparcial").prop("disabled", true);
+    	        
+    	    } else if(estado === 2){
+    	    	
+    	    	// Habilitar el botón por su ID
+    	    	$("#pagosss").prop("disabled", false);
+    	    	$("#pagoparcial").prop("disabled", false);
+    	       
+    	    }else {
+    	    	// Habilitar el botón por su ID
+    	    	$("#pagosss").prop("disabled", false);
+    	    	$("#pagoparcial").prop("disabled", true);
+    	    	
+    	    }
+    		
+    	})
+    	
+    	alert("codigo Couta: " + cod + " numero cuota: "+numCuota + "siguiente"+monto +"nn"+nombre);
+    })
+    
+     $(document).on("change","#idFormaDePagoo", function(){
+    
+    	 let codPrestatario = $("#idFormaDePagoo").val();
+    	 $("#idFormaPaogo").val(codPrestatario);
+    	 
+    	 alert("pp"+codPrestatario);
+     })
+    
+	</script>
+    
+</body>
+</html>

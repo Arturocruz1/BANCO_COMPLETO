@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Prestamistas</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<link rel="stylesheet" th:href="@{/resources/datepicker/bootstrap-datepicker.css}">
+<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.css}">
+<link rel="stylesheet" th:href="@{/resources/alertifyjs/css/alertify.min.css}"> 
+
+
+<!-- agregado de gogle -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+ 
+<link  rel="stylesheet" type="text/css" th:href="@{/resources/css/all.min.css}">
+<link rel="stylesheet" th:href="@{/resources/css/sb-admin-2.min.css}">
+
+<style>
+	body{
+		font-family:verdana;
+		font-size:12px;
+	}
+	.modal-header, h4, .close {
+		background-color: #286090;
+		color: white !important;
+		text-align: center;
+		font-size: 20px;
+	}
+	
+	.form-control {
+		height:30px!important;
+		max-width: 950px;
+		 /*padding-left: 40px!important;*/
+	}
+	fieldset, legend {
+	  	all: revert;
+	}
+	.reset {
+	    all: revert;
+	}
+	.btn-danger{
+		margin:0px!important;
+		height:30px!important;
+		padding-top:3px!important;	
+	}
+	.colorBloqueado{
+		background:#F7EEC5;	
+	}
+	.form-control:focus {
+	background:#F7EEC5;	
+	}
+</style>
+
+</head>
+<body>
+	
+<div id="wrapper">  
+   	<ul th:replace="~{index :: ul}"></ul>
+ 
+    <div id="content-wrapper" class="d-flex flex-column">
+
+	    <div id="content">
+	 
+		    <nav th:replace="~{index :: nav}"></nav>
+						
+			<div class="container">
+				<h1 class="text-center"> SOLICITUD DE PRESTAMOS </h1>
+			</div>
+			
+			<div class="modal fade" id="modalMedicamento" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered modal-login modal-lg" >					
+					<div class="modal-content">
+						<div class="modal-header bg-blue-darker">
+							<h4 class="modal-title text-white">Prestamista</h4>
+						</div>
+						<div class=" mt-2">
+						<table class="table table-striped table-bordered mt-12" id="tableMedicamentos">
+							  <thead>
+							   <tr>
+					                <th>Banco</th>
+					                <th>Usuario</th>
+					                <th>Número Cuenta</th>
+					                <th>Estado</th>		              
+					                <th></th>
+					            </tr>
+							  </thead>
+							  <tbody>
+								<tr th:each="row:${listarCuentas}">
+								      <td th:text="${row.BancoHasUsuario.codigoBanco}"></td>
+									  <td th:text="${row.UsuarioHasBanco.codigoUsuario}"></td>
+									  <td th:text="${row.cuenta}"></td>
+									  <td th:text="${row.estado}"></td>    
+							      <td><a class="btn btn-info btn-datos-cuenta" data-toggle="modal" data-target="#modalMedicamento"><i class="far fa-edit"></i></a></td>
+							    </tr>  
+							  </tbody>
+						</table>
+						</div>
+						<div class="col-md-12 text-center mt-4"> 										
+							<button type="button" id="btn-cerrar" class="btn btn-danger" data-dismiss="modal"><i class="fas fa-undo-alt"></i> Regresar </button>
+						</div> 		
+						<hr>
+					</div>
+				</div>	
+			</div>
+			
+			<div class="container">
+    <form method="post" th:action="@{/Solicitud/grabar}" onsubmit="return validarFormulario();">
+        <input type="hidden" id="idCodigo" class="txtcodigo" name="codigo" value="0">
+        <div class="row">
+
+            <div class="form-group has-feedback col-md-12">
+                <label for="exampleInputEmail1"><b>Monto</b></label>
+                <input type="text" class="form-control" id="idMonto" placeholder="Ingresa monto" name="monto">
+                <div id="errorMonto" class="error-message"></div>
+                <hr>
+            </div>
+
+            <div class="form-group has-feedback col-md-4">
+                <label for="exampleInputEmail1" class="text-center"><b>Fecha Inicio</b></label><br>
+                <i class="fas fa-calendar-week form-control-feedback2"></i>
+                <input type="text" style="background-color:#aed6f1" class="form-control"
+                    id="idFechaInicio" name="fecIni" placeholder="YYYY-MM-DD"
+                    autocomplete="off">
+                <div id="errorFechaInicio" class="error-message"></div>
+            </div>
+
+            <div class="form-group has-feedback col-md-4">
+                <label for "exampleInputEmail1" class="text-center"><b>Fecha Fin</b></label><br>
+                <i class="fas fa-calendar-week form-control-feedback2"></i>
+                <input type="text" style="background-color:#aed6f1" class="form-control"
+                    id="idFechaFin" name="fecFin" placeholder="YYYY-MM-DD"
+                    autocomplete="off">
+                <div id="errorFechaFin" class="error-message"></div>
+            </div>
+
+            <div class="form-group has-feedback col-md-12">
+                <label for="exampleInputEmail1"><b>Número de Solicitud</b></label>
+                <input th:value="${generarNum}" type="text" class="form-control" id="idNumeroSolicitud" placeholder="Escoja una cuenta" name="numSoli" readonly>
+                <div id="errorNumeroSolicitud" class="error-message"></div>
+                <hr>
+            </div>
+
+            <div class="form-group has-feedback col-md-12">
+                <label for="exampleInputEmail1"><b>Número de cuenta</b></label>
+                <input type="text" class="form-control" id="idNumCuenta" placeholder="Escoja numero de cuenta" name="numCuenta">
+                <div id="errorNumCuenta" class="error-message"></div>
+                <hr>
+                <a class="btn btn-warning" data-toggle="modal" data-target="#modalMedicamento"><i class="far fa-edit"></i> Ver </a>
+                <hr>
+            </div>
+
+            <div class="form-group has-feedback col-md-12">
+                <button type="submit" class="btn btn-danger"><i class="fas fa-save"></i> Grabar</button>
+            </div>
+        </div>
+    </form>
+</div>
+			
+			
+					
+		</div>
+
+</div>
+	
+	<script  th:inline="javascript" th:if="${MENSAJE!=null}">
+		//recuperar atributo "MENSAJE"
+		let msg=/*[[${MENSAJE}]]*/
+		
+		toastr.success(msg, toastr.options = {
+			"timeOut": "2000",
+			"positionClass " : " toast-top-right ",
+		});
+	</script>
+	
+<div th:replace="index :: modal"></div>
+
+<div th:replace="index :: script"></div>
+
+
+<script>
+	
+	$(document).on("click",".btn-datos-cuenta",function(){
+			let cod;
+			cod=$(this).parents("tr").find("td")[2].innerHTML;
+			$("#idNumCuenta").val(cod);	
+		})
+	
+</script>
+
+
+
+<script>
+    function validarFormulario() {
+    var monto = document.getElementById("idMonto").value;
+    var fechaInicio = document.getElementById("idFechaInicio").value;
+    var fechaFin = document.getElementById("idFechaFin").value;
+    var numSolicitud = document.getElementById("idNumeroSolicitud").value;
+    var numCuenta = document.getElementById("idNumCuenta").value;
+
+    var errorMonto = document.getElementById("errorMonto");
+    var errorFechaInicio = document.getElementById("errorFechaInicio");
+    var errorFechaFin = document.getElementById("errorFechaFin");
+    var errorNumeroSolicitud = document.getElementById("errorNumeroSolicitud");
+    var errorNumCuenta = document.getElementById("errorNumCuenta");
+
+    // Restablecer mensajes de error
+    errorMonto.innerHTML = "";
+    errorFechaInicio.innerHTML = "";
+    errorFechaFin.innerHTML = "";
+    errorNumeroSolicitud.innerHTML = "";
+    errorNumCuenta.innerHTML = "";
+
+    var error = false;
+
+    if (monto === "") {
+        errorMonto.innerHTML = "El campo Monto es obligatorio.";
+        error = true;
+    }
+
+    if (fechaInicio === "") {
+        errorFechaInicio.innerHTML = "El campo Fecha de Inicio es obligatorio.";
+        error = true;
+    }
+
+    if (fechaFin === "") {
+        errorFechaFin.innerHTML = "El campo Fecha de Fin es obligatorio.";
+        error = true;
+    }
+
+    if (numSolicitud === "") {
+        errorNumeroSolicitud.innerHTML = "El campo Número de Solicitud es obligatorio.";
+        error = true;
+    }
+
+    if (numCuenta === "") {
+        errorNumCuenta.innerHTML = "El campo Número de Cuenta es obligatorio.";
+        error = true;
+    }
+
+    if (error) {
+        return false; // Impide que se envíe el formulario si faltan campos.
+    }
+
+    // Simula un envío exitoso del formulario
+    Swal.fire("Registro exitoso", "Tu registro es exitoso", "success");
+
+    // Retrasa el cierre de la alerta después de 5 segundos
+    setTimeout(function() {
+        Swal.close();
+    }, 100000);
+
+    return true; // Envía el formulario si todos los campos están llenos.
+}
+
+</script>
+
+<style>
+    .error-message {
+        color: red;
+    }
+</style>
+
+</body>
+</html>

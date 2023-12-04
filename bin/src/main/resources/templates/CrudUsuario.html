@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>CRUD USUARIOS</title>
+<!-- LINK QUE YO AGREGUE -->
+
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+
+<!-- Agrega esto a tu HEAD -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<link  rel="stylesheet" type="text/css" th:href="@{/resources/css/all.min.css}"><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL SI ES QUE NO LO TIENE-->
+    <link rel="stylesheet" th:href="@{/resources/css/sb-admin-2.min.css}"><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL SI ES QUE NO LO TIENE-->
+
+<style>
+body {
+	color: #566787;
+	background: #f5f5f5;
+	font-family: 'Varela Round', sans-serif;
+	font-size: 13px;
+}
+label {
+  display: block;
+  font:
+    1rem 'Fira Sans',
+    sans-serif;
+}
+
+input,
+label {
+  margin: 0.4rem 0;
+}
+
+
+ /* Estilo para el estado "Inactivo" (0) */
+  .inactivo {
+    background-color: #FF0000; /* Rojo para indicar inactivo */
+    color: #FFFFFF; /* Texto en blanco para mayor contraste */
+  }
+
+  /* Estilo para el estado "Activo" (1) */
+  .activo {
+    background-color: #00FF00; /* Verde para indicar activo */
+    color: #000000; /* Texto en negro para mayor contraste */
+  }
+  
+   select {
+    width: 80%; 
+    height: 40px;
+    /* Puedes ajustar este valor según tus preferencias */
+  }
+.table-responsive {
+    margin: 30px 0;
+    width: 100%;
+}
+.table-wrapper {
+	background: #fff;
+	padding: 20px 30px;
+	border-radius: 3px;
+	min-width: 1500px;
+	box-shadow: 0 1px 1px rgba(0,0,0,.05);
+}
+.table-title {        
+	padding-bottom: 15px;
+	background: #435d7d;
+	color: #fff;
+	padding: 16px 30px;
+	min-width: 100%;
+	margin: -20px -25px 10px;
+	border-radius: 3px 3px 0 0;
+}
+.table-title h2 {
+	margin: 5px 0 0;
+	font-size: 24px;
+}
+.table-title .btn-group {
+	float: right;
+}
+.table-title .btn {
+	color: #fff;
+	float: right;
+	font-size: 13px;
+	border: none;
+	min-width: 50px;
+	border-radius: 2px;
+	border: none;
+	outline: none !important;
+	margin-left: 10px;
+}
+.table-title .btn i {
+	float: left;
+	font-size: 21px;
+	margin-right: 5px;
+}
+.table-title .btn span {
+	float: left;
+	margin-top: 2px;
+}
+table.table tr th, table.table tr td {
+	border-color: #e9e9e9;
+	padding: 12px 15px;
+	vertical-align: middle;
+}
+table.table tr th:first-child {
+	width: 60px;
+}
+table.table tr th:last-child {
+	width: 100px;
+}
+table.table-striped tbody tr:nth-of-type(odd) {
+	background-color: #fcfcfc;
+}
+table.table-striped.table-hover tbody tr:hover {
+	background: #f5f5f5;
+}
+table.table th i {
+	font-size: 13px;
+	margin: 0 5px;
+	cursor: pointer;
+}	
+table.table td:last-child i {
+	opacity: 0.9;
+	font-size: 22px;
+	margin: 0 5px;
+}
+table.table td a {
+	font-weight: bold;
+	color: #566787;
+	display: inline-block;
+	text-decoration: none;
+	outline: none !important;
+}
+table.table td a:hover {
+	color: #2196F3;
+}
+table.table td a.edit {
+	color: #FFC107;
+}
+table.table td a.delete {
+	color: #F44336;
+}
+table.table td i {
+	font-size: 19px;
+}
+table.table .avatar {
+	border-radius: 50%;
+	vertical-align: middle;
+	margin-right: 10px;
+}
+.pagination {
+	float: right;
+	margin: 0 0 5px;
+}
+.pagination li a {
+	border: none;
+	font-size: 13px;
+	min-width: 30px;
+	min-height: 30px;
+	color: #999;
+	margin: 0 2px;
+	line-height: 30px;
+	border-radius: 2px !important;
+	text-align: center;
+	padding: 0 6px;
+}
+.pagination li a:hover {
+	color: #666;
+}	
+.pagination li.active a, .pagination li.active a.page-link {
+	background: #03A9F4;
+}
+.pagination li.active a:hover {        
+	background: #0397d6;
+}
+.pagination li.disabled i {
+	color: #ccc;
+}
+.pagination li i {
+	font-size: 16px;
+	padding-top: 6px
+}
+.hint-text {
+	float: left;
+	margin-top: 10px;
+	font-size: 13px;
+}    
+/* Custom checkbox */
+.custom-checkbox {
+	position: relative;
+}
+.custom-checkbox input[type="checkbox"] {    
+	opacity: 0;
+	position: absolute;
+	margin: 5px 0 0 3px;
+	z-index: 9;
+}
+.custom-checkbox label:before{
+	width: 18px;
+	height: 18px;
+}
+.custom-checkbox label:before {
+	content: '';
+	margin-right: 10px;
+	display: inline-block;
+	vertical-align: text-top;
+	background: white;
+	border: 1px solid #bbb;
+	border-radius: 2px;
+	box-sizing: border-box;
+	z-index: 2;
+}
+.custom-checkbox input[type="checkbox"]:checked + label:after {
+	content: '';
+	position: absolute;
+	left: 6px;
+	top: 3px;
+	width: 6px;
+	height: 11px;
+	border: solid #000;
+	border-width: 0 3px 3px 0;
+	transform: inherit;
+	z-index: 3;
+	transform: rotateZ(45deg);
+}
+.custom-checkbox input[type="checkbox"]:checked + label:before {
+	border-color: #03A9F4;
+	background: #03A9F4;
+}
+.custom-checkbox input[type="checkbox"]:checked + label:after {
+	border-color: #fff;
+}
+.custom-checkbox input[type="checkbox"]:disabled + label:before {
+	color: #b8b8b8;
+	cursor: auto;
+	box-shadow: none;
+	background: #ddd;
+}
+/* Modal styles */
+.modal .modal-dialog {
+	max-width: 400px;
+}
+.modal .modal-header, .modal .modal-body, .modal .modal-footer {
+	padding: 20px 30px;
+}
+.modal .modal-content {
+	border-radius: 3px;
+	font-size: 14px;
+}
+.modal .modal-footer {
+	background: #ecf0f1;
+	border-radius: 0 0 3px 3px;
+}
+.modal .modal-title {
+	display: inline-block;
+}
+.modal .form-control {
+	border-radius: 2px;
+	box-shadow: none;
+	border-color: #dddddd;
+}
+.modal textarea.form-control {
+	resize: vertical;
+}
+.modal .btn {
+	border-radius: 2px;
+	min-width: 100px;
+}	
+.modal form label {
+	font-weight: normal;
+}	
+
+</style>
+<script>
+$(document).ready(function(){
+	// Activate tooltip
+	$('[data-toggle="tooltip"]').tooltip();
+	
+	// Select/Deselect checkboxes
+	var checkbox = $('table tbody input[type="checkbox"]');
+	$("#selectAll").click(function(){
+		if(this.checked){
+			checkbox.each(function(){
+				this.checked = true;                        
+			});
+		} else{
+			checkbox.each(function(){
+				this.checked = false;                        
+			});
+		} 
+	});
+	checkbox.click(function(){
+		if(!this.checked){
+			$("#selectAll").prop("checked", false);
+		}
+	});
+});
+</script>
+</head>
+<body id="page-top">
+
+<div id="wrapper">  <!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+   <ul th:replace="~{index :: ul}"></ul><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+ 
+  <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column"><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+
+            <!-- Main Content -->
+            <div id="content"><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+ 
+                <nav th:replace="~{index :: nav}"></nav><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+ 
+
+<div class="container-xl">
+	<div class="table-responsive">
+		<div class="table-wrapper">
+			<div class="table-title">
+				<div class="row">
+					<div class="col-sm-6">
+						<h2>LISTA DE <b>USUARIOS</b></h2>
+					</div>
+					<div class="col-sm-6">
+						<a href="#addEmployeeModal" class="btn btn-success" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Agregar Usuario</span></a>				
+					</div>
+				</div>												
+			</div>
+				<div class=" mt-2">
+					<table class="table table-striped table-bordered mt-5" id="tableUsuarios">
+						<thead>
+							<tr>
+								<th>Codigo</th>
+								<th>Usuario</th>
+								<th>Fecha Registro</th>
+								<th>Fecha Nacimiento</th>
+								<th>Estado</th>
+								<th>Email</th>
+								<th>Flag</th>
+								<th>Materno</th>
+								<th>DNI</th>
+								<th>Paterno</th>
+								<th>Telefono</th>
+								<th></th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+						    <tr th:each="usuario:${usuarios}">
+						        <td th:text="${usuario.codigoUsuario}"></td>
+						        <td th:text="${usuario.username}"></td>
+						        <td th:text="${usuario.fechaUsuario}"></td>
+						        <td th:text="${usuario.fechaNacimiento}"></td>
+						        <td th:text="${usuario.estadoUsuario}"></td>
+						        <td th:text="${usuario.emailUsuario}"></td>
+						        <td th:text="${usuario.flagUsario}"></td>
+						        <td th:text="${usuario.marternoUsario}"></td>
+						        <td th:text="${usuario.dniUsario}"></td>
+						        <td th:text="${usuario.paternoUsuario}"></td>
+						        <td th:text="${usuario.telefonoUsuario}"></td>
+						        <td><a class="btn btn-info btn-editar" data-toggle="modal" data-target="#addEmployeeModal"><i class="far " style="color: white;">Editar</i></a></td>
+								<td><a class="btn btn-danger btn-eliminar"><i class="far" style="color: white;">Eliminar</i></a></td>
+						    </tr>
+						</tbody>
+					</table>
+				</div>
+		</div>
+	</div>        
+</div>
+
+
+<!-- Edit Modal HTML -->
+<div id="addEmployeeModal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form method="POST" action="/usuario/grabar" id="idRegistra">
+				<div class="modal-header">						
+					<h4 class="modal-title">Agregar Usuario</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" id="idCodigo" name="codigo" value="0">					
+					<div class="form-group">
+						<label>Username</label>
+						<input type="text" class="form-control" name="username" id="idNombre">
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" class="form-control" name="password" id="idConstrasena">
+					</div>
+					
+					 <div class="form-group has-feedback col-md-9">	
+						<label for="exampleInputEmail1" class="text-center"><b>Fecha</b></label><br>
+						<i class="fas fa-calendar-week form-control-feedback2"></i>
+						<input type="date" style="background-color:#aed6f1" class="form-control" id="usr2" name="fechanacimiento"	
+										 placeholder="YYYY-MM-DD" autocomplete="off" >
+					</div> 
+					
+					<!-- Combo (select) -->
+					<select id="estadoCombo" name="estado">
+					  <option value="0" class="inactivo">Inactivo</option>
+					  <option value="1" class="activo">Activo</option>
+					</select>
+					<div class="form-group">
+						<label>Email</label>
+						<input type="email" class="form-control" name="email" id="idEmail">
+					</div>
+					<div class="form-group">
+						<label>Flag</label>
+						<input type="text" class="form-control" name="flag" id="idFlag">
+					</div>
+					<div class="form-group">
+						<label>Materno</label>
+						<input type="text" class="form-control" name="materno" id="idMaterno">
+					</div>
+					<div class="form-group">
+						<label>DNI</label>
+						<input type="text" class="form-control" name="dni" id="idDni">
+					</div>
+					<div class="form-group">
+						<label>paterno</label>
+						<input type="text" class="form-control" name="paterno" id="idPaterno">
+					</div>
+					<div class="form-group">
+						<label>Telefono</label>
+						<input type="text" class="form-control" name="telefono" id="idTelefono">
+					</div>					
+					<div>
+					<label for="exampleInputEmail1"><b>ROLES</b></label><br>
+					<select   class="form-group" id="idRol" name="Rol">
+					<option  th:each="row:${rol}" th:utext="${row.nombrerol}"
+												th:value="${row.codigo}"></option>
+					  
+					 
+					</select>
+					</div>	
+				</div>
+				<div class="modal-footer">
+					<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancelar" id="btn-cancelar">
+					<input type="submit" class="btn btn-success" value="Agregar">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+  </div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+	         </div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+	         </div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+
+    <div th:replace="~{index :: modal}"></div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+	         
+	         <div th:replace="~{index :: script}"></div><!-- ESTO TIENES QUE AGREGAR PARA LA VISTA PRINCIPAL -->
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+		<script th:inline="javascript" th:if="${mensaje!=null}">
+			//Recuperar atributo mensaje
+			let men =/*[[${Mensaje}]]*/
+				toastr.success(men, toastr.options = {
+					"timeOut": "2000",
+					"positionClass ": " toast-top-right ",
+				});
+	
+		</script>
+		
+		<script>
+				('#tableUsuarios').DataTable();
+				$(function () {
+					$('#usr2').datepicker({
+						'format': 'yyyy-mm-dd',
+						'autoclose': true
+					});
+		
+				});
+				$('#usr2').on('changeDate show', function (e) {
+					$('#idRegistra').bootstrapValidator('revalidateField', $('#usr2'));
+				});
+		</script>
+		<script>
+			
+		
+		
+			$(document).on("click", ".btn-editar", function (){
+				let cod;
+				cod = $(this).parents("tr").find("td")[0].innerHTML;
+				$.get("/usuario/buscar?codigo="+cod, function(response){
+					$("#idCodigo").val(response.codigoUsuario);
+					$("#idNombre").val(response.username);
+					$("#idConstrasena").val(response.password);
+					$("#idFechaNacimiento").val(response.fechaNacimiento);
+					$("#estadoCombo").val(response.estadoUsuario);
+					$("#idEmail").val(response.emailUsuario);
+					$("#idFlag").val(response.flagUsario);
+					$("#idMaterno").val(response.marternoUsario);
+					$("#idDni").val(response.dniUsario);
+					$("#idPaterno").val(response.paternoUsuario);
+					$("#idTelefono").val(response.telefonoUsuario);
+				})
+			})
+			
+			//
+			$(document).on("click","#btn-cancelar",function(){
+				$("#idRegistra").trigger("reset")
+				$("#idCodigo").val(0);
+				$("#idRegistra").data("bootstrapValidator").resetForm(true);
+			})
+		
+		</script>
+		
+		<script>
+		$('#tableUsuarios').DataTable();
+		$(function() {
+			$('#usr2').datepicker({
+				'format': 'yyyy-mm-dd',
+				'autoclose': true
+			});
+	
+		});
+		$('#usr2').on('changeDate show', function(e) {
+		    $('#idRegistra').bootstrapValidator('revalidateField', $('#usr2'));
+		});
+
+
+	</script>
+		
+		
+		<!-- VALIDACION NUEVA -->
+	
+<script>
+$(document).ready(function () {
+    $("#idRegistra").submit(function (event) {
+        // Evita que el formulario se envíe automáticamente
+        event.preventDefault();
+
+        // Realiza las validaciones aquí
+        var username = $("#idNombre").val();
+        var password = $("#idConstrasena").val();
+        var fechaNacimiento = $("#usr2").val();
+        var email = $("#idEmail").val();
+        var flag = $("#idFlag").val();
+        var materno = $("#idMaterno").val();
+        var dni = $("#idDni").val();
+        var paterno = $("#idPaterno").val();
+        var telefono = $("#idTelefono").val();
+		//
+		var dniPattern = /^[1-9][0-9]{7}$/;
+		var telefonoPattern = /^[9][0-9]{8}$/;
+
+        // Validación simple de campos obligatorios
+        if (username === "") {
+        	toastr.error("Ingrese datos el campo Nombre.", "¡COMPLETAR CAMPO!");
+            return;
+        }
+
+        if (password === "") {
+            toastr.error("Ingrese datos el campo Password.", "¡COMPLETAR CAMPO!");
+            return;
+        }
+
+        if (fechaNacimiento === "") {
+            toastr.error("Ingrese el campo Fecha de Nacimiento.", "¡COMPLETAR CAMPO!");
+            return;
+        }
+
+        if (email === "") {
+        	toastr.error("Ingrese datos el campo Email.", "¡COMPLETAR CAMPO!");
+            return;
+        }
+        if (flag === "") {
+            toastr.error("Ingrese datos el campo Flag.", "¡COMPLETAR CAMPO!");
+            return;
+        }
+        if (materno === "") {
+        	toastr.error("Ingrese datos el campo Materno.", "¡COMPLETAR CAMPO!");
+            return;
+        }
+        if (dni === "") {
+            toastr.error("Ingrese el campo DNI.", "¡COMPLETAR CAMPO!");
+            return;
+        } else if (!dniPattern.test(dni)) {
+            toastr.error("El DNI debe contener solo 8 números.", "Formato Inválido");
+            return;
+        }
+        if (paterno === "") {
+        	toastr.error("Ingrese datos el campo Paterno.", "¡COMPLETAR CAMPO!");
+            return;
+        }
+        if (telefono === "") {
+            toastr.error("Ingrese datos el campo Teléfono.", "¡COMPLETAR CAMPO!");
+            return;
+        } else if (!telefonoPattern.test(telefono)) {
+            toastr.error("El Teléfono debe contener solo dígitos numéricos.", "Formato Inválido");
+            return;
+        }       
+        this.submit();
+    });
+});
+</script>
+		
+		
+		
+		
+		
+		
+<!-- Agrega esto antes de tu cierre de BODY -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+		
+</body>
+</html>
